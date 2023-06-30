@@ -5,34 +5,69 @@ using UnityEngine.SceneManagement;
 
 public class SnakeController : MonoBehaviour
 {
+    private Vector2 _direction = Vector2.right;
+
     [SerializeField]
-    private float moveSpeed;
-    private Vector3 moveVector = Vector3.left;
+    private List<Transform> segmentsList;
+    [SerializeField]
+    private Transform segmentPrefab;
+
+    private void Start()
+    {
+        segmentsList = new List<Transform>();
+        segmentsList.Add(this.transform);
+    }
 
     private void Update()
     {
-        MoveController();
-        transform.Translate(moveVector * moveSpeed * Time.deltaTime, Space.Self);
+        if (Input.GetKeyDown(KeyCode.W))
+        {
+            _direction = Vector2.up;
+        }
+        else if (Input.GetKeyDown(KeyCode.S))
+        {
+            _direction = Vector2.down;
+        }
+        else if (Input.GetKeyDown(KeyCode.A))
+        {
+            _direction = Vector2.left;
+        }
+        else if (Input.GetKeyDown(KeyCode.D)) 
+        { 
+            _direction = Vector2.right;
+        }
+
     }
 
-    private void MoveController()
+    private void FixedUpdate()
     {
-            float horizontalInput = Input.GetAxisRaw("Horizontal");
-            float verticalInput = Input.GetAxisRaw("Vertical");
+        for(int i=segmentsList.Count-1; i>0; i--)
+        {
+            segmentsList[i].position = segmentsList[i - 1].position;
+        }
 
-            if (horizontalInput != 0f)
-            {
-                moveVector = new Vector3(horizontalInput, 0f, 0f);
-            }
-            else if (verticalInput != 0f)
-            {
-                moveVector = new Vector3(0f, verticalInput, 0f);
-            }
+        this.transform.position = new Vector3(
+            Mathf.Round(this.transform.position.x) + _direction.x,
+            Mathf.Round(this.transform.position.y) + _direction.y,
+            0.0f
+        );
     }
 
-    private void OnCollisionEnter2D(Collision2D collision)
+    private void Grow()
     {
-        if (collision.gameObject.CompareTag("Border"))
+        Transform segment = Instantiate(this.segmentPrefab);
+        segment.position = segmentsList[segmentsList.Count - 1].position;
+
+        segmentsList.Add(segment);
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.CompareTag("Food"))
+        {
+            Grow();
+        } 
+        else if (collision.CompareTag("Border"))
         {
             SceneManager.LoadScene(2);
         }
