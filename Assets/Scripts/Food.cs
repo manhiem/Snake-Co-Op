@@ -1,31 +1,56 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Food : MonoBehaviour
 {
-    public BoxCollider2D boxCollider;
+    private float countUp = 0;
+    private float waitTime = 5.0f;
 
-    // Start is called before the first frame update
-    void Start()
+    [SerializeField]
+    private string activePowerUp = null;
+
+    private void Update()
     {
-        RandomizePosition();
-    }
+        countUp += Time.deltaTime;
 
-    private void RandomizePosition()
-    {
-        Bounds bounds = boxCollider.bounds;
-        float x = Random.Range(bounds.min.x, bounds.max.x);
-        float y = Random.Range(bounds.min.y, bounds.max.y);
-
-        this.transform.position = new Vector3(x, y, 0.0f);
+        if(countUp >= waitTime)
+        {
+            FoodSpawner.Instance.SpawnFoodAndPowerUp();
+            Destroy(this.gameObject);
+        }
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
+        switch(activePowerUp)
+        {
+            case "SHIELD":
+                collision.gameObject.GetComponent<SnakeController>().setShieldBool(true);
+                break;
+            case "SCORE":
+                collision.gameObject.GetComponent<SnakeController>().xScore();
+                break;
+            case "SPEED":
+                StartCoroutine(ChangeTimeStamp());
+                break;
+            default:
+                break;
+        }
+
+
         if(collision.CompareTag("Player"))
         {
-            RandomizePosition();
+            FoodSpawner.Instance.SpawnFoodAndPowerUp();
+            Destroy(this.gameObject);
         }
+    }
+
+    IEnumerator ChangeTimeStamp()
+    {
+        Time.fixedDeltaTime = 0.04f;
+
+        yield return new WaitForSeconds(10f);
+
+        Time.fixedDeltaTime = 0.08f;
     }
 }

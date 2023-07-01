@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
 public class SnakeController : MonoBehaviour
@@ -12,31 +13,41 @@ public class SnakeController : MonoBehaviour
     [SerializeField]
     private Transform segmentPrefab;
 
+    [SerializeField]
+    private bool isShield;
+
+    [SerializeField]
+    private Text scoreText;
+    private int scoreValue;
+    private int value = 1;
+
     private void Start()
     {
-        segmentsList = new List<Transform>();
-        segmentsList.Add(this.transform);
+        scoreText.text = "Score: 0";
+        segmentsList = new List<Transform>
+        {
+            this.transform
+        };
     }
+
+    private Dictionary<KeyCode, Vector2> keyDirectionMap = new Dictionary<KeyCode, Vector2>()
+    {
+        { KeyCode.W, Vector2.up },
+        { KeyCode.S, Vector2.down },
+        { KeyCode.A, Vector2.left },
+        { KeyCode.D, Vector2.right }
+    };
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.W))
+        foreach (var kvp in keyDirectionMap)
         {
-            _direction = Vector2.up;
+            if (Input.GetKeyDown(kvp.Key) && _direction != -kvp.Value)
+            {
+                _direction = kvp.Value;
+                return;
+            }
         }
-        else if (Input.GetKeyDown(KeyCode.S))
-        {
-            _direction = Vector2.down;
-        }
-        else if (Input.GetKeyDown(KeyCode.A))
-        {
-            _direction = Vector2.left;
-        }
-        else if (Input.GetKeyDown(KeyCode.D)) 
-        { 
-            _direction = Vector2.right;
-        }
-
     }
 
     private void FixedUpdate()
@@ -59,17 +70,69 @@ public class SnakeController : MonoBehaviour
         segment.position = segmentsList[segmentsList.Count - 1].position;
 
         segmentsList.Add(segment);
+
+        if (segmentsList.Count > 5)
+        {
+            FoodSpawner.Instance.spawnBoth = true;
+        }
+    }
+
+    private void Decrease()
+    {
+        GameObject lastSegment = segmentsList[segmentsList.Count - 1].gameObject;
+        GameObject.Destroy(lastSegment);
+        segmentsList.RemoveAt(segmentsList.Count - 1);
+
+        if (segmentsList.Count < 5)
+        {
+            FoodSpawner.Instance.spawnBoth = false;
+        }
+    }
+
+    public void setShieldBool(bool shieldValue)
+    {
+        isShield = shieldValue;
+    }
+
+    public IEnumerator xScore()
+    {
+        value = 2;
+
+        yield return new WaitForSeconds(10f);
+
+        value = 1;
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.CompareTag("Food"))
+        switch (collision.tag)
         {
-            Grow();
-        } 
-        else if (collision.CompareTag("Border"))
-        {
-            SceneManager.LoadScene(2);
+            case "GrowFood":
+                UpdateScore(value);
+                Grow();
+                break;
+            case "DecreaseFood":
+                UpdateScore(value);
+                Decrease();
+                break;
+            case "Player":
+                if (!isShield)
+                {
+                    SceneManager.LoadScene(2);
+                }
+                isShield = false;
+                break;
+            case "Border":
+                SceneManager.LoadScene(2);
+                break;
+            default: break;
         }
     }
+
+    private void UpdateScore(int scoreIncrement)
+    {
+        scoreValue += scoreIncrement;
+        scoreText.text = "Score: " + scoreValue.ToString();
+    }
+
 }
