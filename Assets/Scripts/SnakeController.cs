@@ -118,12 +118,12 @@ public class SnakeController : MonoBehaviour
             case "Player":
                 if (!isShield)
                 {
-                    SceneManager.LoadScene(2);
+                    SceneManager.LoadScene(6);
                 }
                 isShield = false;
                 break;
             case "Border":
-                SceneManager.LoadScene(2);
+                SceneManager.LoadScene(6);
                 break;
             default: break;
         }
