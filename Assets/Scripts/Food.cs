@@ -6,14 +6,13 @@ public class Food : MonoBehaviour
     private float countUp = 0;
     private float waitTime = 5.0f;
 
-    [SerializeField]
-    private string activePowerUp = null;
+    [SerializeField] private string activePowerUp = null;
 
     private void Update()
     {
         countUp += Time.deltaTime;
 
-        if(countUp >= waitTime)
+        if (countUp >= waitTime)
         {
             FoodSpawner.Instance.SpawnFoodAndPowerUp();
             Destroy(this.gameObject);
@@ -22,13 +21,22 @@ public class Food : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        switch(activePowerUp)
+        SnakeController snakeController = collision.gameObject.GetComponent<SnakeController>();
+        SecondSnakeController secondSnakeController = collision.gameObject.GetComponent<SecondSnakeController>();
+
+        switch (activePowerUp)
         {
             case "SHIELD":
-                collision.gameObject.GetComponent<SnakeController>().setShieldBool(true);
+                if (snakeController != null)
+                    snakeController.SetShieldBool(true);
+                else if (secondSnakeController != null)
+                    secondSnakeController.SetShieldBool(true);
                 break;
             case "SCORE":
-                collision.gameObject.GetComponent<SnakeController>().xScore();
+                if (snakeController != null)
+                    snakeController.StartCoroutine(snakeController.XScore());
+                else if (secondSnakeController != null)
+                    secondSnakeController.StartCoroutine(secondSnakeController.XScore());
                 break;
             case "SPEED":
                 StartCoroutine(ChangeTimeStamp());
@@ -37,8 +45,7 @@ public class Food : MonoBehaviour
                 break;
         }
 
-
-        if(collision.CompareTag("Player"))
+        if (collision.CompareTag("Player"))
         {
             FoodSpawner.Instance.SpawnFoodAndPowerUp();
             Destroy(this.gameObject);

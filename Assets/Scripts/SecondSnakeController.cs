@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
-public class SnakeController : MonoBehaviour
+public class SecondSnakeController : MonoBehaviour
 {
     private Vector2 _direction = Vector2.right;
     private Transform _transform;
@@ -115,7 +115,7 @@ public class SnakeController : MonoBehaviour
                 if (isCoop && !isShield)
                 {
                     winsModal.SetActive(true);
-                    winsText.text = "Player2 Wins!!!";
+                    winsText.text = "Player1 Wins!!!";
                 }
                 else if (!isCoop && !isShield)
                 {
@@ -127,7 +127,7 @@ public class SnakeController : MonoBehaviour
                 if (isCoop)
                 {
                     winsModal.SetActive(true);
-                    winsText.text = "Player2 Wins!!!";
+                    winsText.text = "Player1 Wins!!!";
                 }
                 SceneManager.LoadScene(7);
                 break;

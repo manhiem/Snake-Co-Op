@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -20,6 +18,10 @@ public class LevelManager : MonoBehaviour
     public void Nokia()
     {
         SceneManager.LoadScene(5);
+    }
+    public void Coop()
+    {
+        SceneManager.LoadScene(6);
     }
 
     //public void CoopLevel()
