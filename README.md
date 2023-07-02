@@ -36,5 +36,3 @@ Include some appealing screenshots of different levels and gameplay in action.
 ## Updates to do in the future
 - Add more sound effects in the game. (Currently they are a bit buggy hence, disabled them.)
 - Optimize the code for more clearer gameplay.
-- 
-
